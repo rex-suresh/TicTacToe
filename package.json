@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "server-http": "github:rex-suresh/server-http"
+  },
+  "name": "tictactoe",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rex-suresh",
+  "license": "ISC",
+  "description": ""
+}
