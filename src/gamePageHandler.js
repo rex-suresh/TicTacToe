@@ -8,46 +8,42 @@ const isMoveValid = (players, move) => {
   return true;
 };
 
-const gamePageHandler = (players) => {
-  const moves = Array(9).fill(' ');
-  let lastPlayerId;
-
-  return (req, res, next) => {
-    const { url: { pathname }, method } = req;
-    if (pathname === '/' && method === 'GET') {
-      res.statusCode = 302;
-      res.setHeader('location', '/index.html');
-      res.end();
-      return;
-    }
-
-    if (pathname === '/game-moves' && method === 'GET') {
-      const playerId = req.cookies.sessionId;
-      const myTurn = lastPlayerId !== playerId;
-      
-      res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({ myTurn, moves }));
-      return;
-    }
-    
-    if (pathname === '/mark' && method === 'POST') {
-      const move = req.bodyParams.get('pos');
-      const playerId = req.cookies.sessionId;
-      const player = players[playerId];
-      const myTurn = lastPlayerId !== playerId;
-      
-      if (isMoveValid(players, move) && lastPlayerId !== playerId) {
-        player.moves.push(move);
-        moves[move - 1] = player.symbol;
-        lastPlayerId = playerId;
-      }
-
-      res.setHeader('content-type', 'application/json');
-      res.end(JSON.stringify({myTurn, moves}));
-      return;
-    }
-    next();
-  };
+const isWon = ({ moves }) => {
+  const winningMoves = ['123', '456', '789', '147', '258', '369', '159', '357'];
+  return winningMoves.some(
+    winMove => winMove.split('').every(move => moves.includes(move)));
 };
 
-module.exports = { gamePageHandler };
+const gameMoves = (players, game) => (req, res) => {
+  const { moves, lastPlayerId, won } = game;
+  const playerId = req.cookies.sessionId;
+  const myTurn = lastPlayerId !== playerId && !won;
+
+  const win = isWon(players[playerId]);
+  res.append('content-type', 'application/json');
+  res.json({ myTurn, moves, win });
+};
+
+const markMove = (players, game) => (req, res) => {
+  const { moves, lastPlayerId, won } = game;
+  
+  const move = req.body.pos;
+  const playerId = req.cookies.sessionId;
+  const player = players[playerId];
+  const myTurn = lastPlayerId !== playerId && !won;
+
+  if (isMoveValid(players, move) && lastPlayerId !== playerId && !won) {
+    player.moves.push(move);
+    moves[move - 1] = player.symbol;
+    game.lastPlayerId = playerId;
+    
+    if (isWon(players[playerId])) {
+      game.won = true;
+    }
+  }
+
+  res.append('content-type', 'application/json');
+  res.json({ myTurn, moves, win: false });
+};
+
+module.exports = { gameMoves, markMove };

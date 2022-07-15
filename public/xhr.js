@@ -9,6 +9,7 @@ const xhrReq = (xhrHandler, method, path, bodyParams) => {
     console.log(`Unable to fetch ${path} at ${method}`);
   };
   xhr.open(method, path);
+  xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
   if (method === 'POST') {
     xhr.send(bodyParams);
     return;

@@ -1,24 +1,29 @@
-const fs = require('fs');
-const { server, injectReqParts, logReq } = require('server-http');
-const { createRouter, notFoundHandler, fileHandler } = require('server-http');
-const { gamePageHandler } = require('./src/gamePageHandler.js');
+const express = require('express');
+const { logReq } = require('./src/logReq.js');
+const { gameMoves, markMove } = require('./src/gamePageHandler.js');
 const { injectCookies } = require('./src/injectCookies.js');
-const { loginHandler } = require('./src/loginHandler.js');
+const { addCookie, attachSession, serveLoginPage, checkCredentials }
+  = require('./src/loginHandler.js');
 const { placePlayers } = require('./src/placePlayers.js');
+const { directToPage } = require('./gamePage.js');
 
 const players = {};
 const sessions = {};
+const game = { moves: Array(9).fill(' '), win: false, lastPlayerId: null};
 
-const handlers = [
-  injectReqParts,
-  logReq,
-  injectCookies,
-  loginHandler(sessions),
-  placePlayers(players),
-  gamePageHandler(players),
-  fileHandler('public', fs),
-  notFoundHandler
-];
+const app = express();
+app.use(logReq);
+app.use(injectCookies);
+app.use(express.urlencoded({ extended: true }));
+app.get('/login', serveLoginPage(sessions));
+app.post('/login', addCookie(sessions));
+app.use(attachSession(sessions));
+app.use('/', directToPage);
+app.use(checkCredentials(sessions));
+app.use(placePlayers(players));
 
-const router = createRouter(handlers);
-server(80, router);
+app.get('/game-moves', gameMoves(players, game));
+app.post('/mark', markMove(players, game));
+app.use(express.static('public'));
+
+app.listen(80, () => console.log('started listening on 80'));

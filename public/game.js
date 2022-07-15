@@ -1,10 +1,14 @@
 const drawOnScreen = ({ response }) => {
-  const { myTurn, moves } = JSON.parse(response);
+  const { myTurn, moves, win } = JSON.parse(response);
   const message = document.getElementById('message');
   message.innerText = '';
   
   if (myTurn) {
     message.innerText = 'Your Turn !';
+  }
+
+  if (win) {
+    message.innerText = 'You WON! YAY!!!';
   }
 
   moves.forEach((move, index) => {
