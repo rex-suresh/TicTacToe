@@ -1,15 +1,23 @@
 {
-  "dependencies": {
-    "server-http": "github:rex-suresh/server-http"
-  },
   "name": "tictactoe",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "rex-suresh",
   "license": "ISC",
-  "description": ""
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rex-suresh/TicTacToe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rex-suresh/TicTacToe/issues"
+  },
+  "homepage": "https://github.com/rex-suresh/TicTacToe#readme",
+  "description": "",
+  "dependencies": {
+    "server-http": "github:rex-suresh/server-http"
+  }
 }
